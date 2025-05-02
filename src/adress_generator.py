@@ -619,47 +619,27 @@ class AdressProvider:
         "Kielecka",
     )
 
-    regions = (
-        "Dolnośląskie",
-        "Kujawsko - pomorskie",
-        "Lubelskie",
-        "Lubuskie",
-        "Łódzkie",
-        "Małopolskie",
-        "Mazowieckie",
-        "Opolskie",
-        "Podkarpackie",
-        "Podlaskie",
-        "Pomorskie",
-        "Śląskie",
-        "Świętokrzyskie",
-        "Warmińsko - mazurskie",
-        "Wielkopolskie",
-        "Zachodniopomorskie",
-    )
+    def random_choice(self, list):
+        return random.choice(list)
 
     def getCity(self)->str:
-        return self.cities[random.randint(0, self.cities_size)]
+        return self.random_choice(self.cities)
     
     def getStreet(self):
-        return self.streets[random.randint(0, self.streets_size)]
+        return self.random_choice(self.streets)
 
     def getStreetPrefix(self):
-        return self.street_prefixes[random.randint(0, self.street_prfx_size)]
+        return self.random_choice(self.street_prefixes)
 
     def getPostalCode(self):
         return f"{random.randint(10, 99)}-{random.randint(100, 999)}"
     
     def getHouseNumber(self):
-        return random.randint(1, 200)
+        return f"{random.randint(1,200)}" if random.randint(0, 1) else f"{random.randint(1,200)}/{random.randint(1,20)}"
+        
     
     def getAdress(self):
         return f"{self.getStreetPrefix()} {self.getStreet()} {self.getHouseNumber()} {self.getPostalCode()} {self.getCity()}"
 
 ap = AdressProvider()
 print(ap.getAdress())
-# print(ap.getCity())
-# print(ap.getPostalCode())
-# print(ap.getStreet())
-# print(ap.getStreetPrefix())
-# print(ap.getHouseNumber())

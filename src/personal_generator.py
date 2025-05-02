@@ -1,7 +1,13 @@
 from typing import List, Optional, Sequence, Tuple, Union
 import random
+from datetime import datetime, date
+from personal_data import Person
 
-class PersonProvider:
+class PersonalGenerator:
+
+    def __init__(self):
+        self.is_male = True
+        self.birth_date = ''
 
     first_names_male: Tuple[str, ...] = (
         "Jakub",
@@ -4063,9 +4069,88 @@ class PersonProvider:
 
     first_names = first_names_male + first_names_female
 
+    def random_choice(self, list):
+        return random.choice(list)
+    
+    def get_sex(self):
+        i = random.randint(0,1)  # 0 female 1 male
+        self.is_male = True if i == 1 else False
+
+    # imiona i nazwiska
     def get_first_name(self):
-        return random.choice(self.first_names)
+        return self.random_choice(self.first_names)
+    
+    def get_last_name(self):
+        return self.random_choice(self.unisex_last_names)
 
+    def get_male_name(self):
+        return f"{self.random_choice(self.first_names_male)} {self.random_choice(self.male_last_names)}"
+    
+    def get_female_name(self):
+        return f"{self.random_choice(self.first_names_female)} {self.random_choice(self.unisex_last_names)}"
+    
+    def get_name(self):
+        return f"{self.get_first_name()} {self.get_last_name()}"
+    
+    # wiek
+    def get_birth_date(self):
+        self.birth_date = date(random.randint(1900, 2025), random.randint(1,12), random.randint(1,31))
+        return self.birth_date
 
-pp = PersonProvider()
-print(pp.get_first_name())
+    # pesel
+    def get_month_code(self, year, month):
+        if 1800 <= year <= 1899:
+            return month + 80
+        elif 1900 <= year <= 1999:
+            return month
+        elif 2000 <= year <= 2099:
+            return month + 20
+        elif 2100 <= year <= 2199:
+            return month + 40
+        elif 2200 <= year <= 2299:
+            return month + 60
+        else:
+            raise ValueError("Rok poza zakresem PESEL")
+
+    def calculate_checksum(self, pesel_digits):
+        weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3]
+        checksum = sum(w * d for w, d in zip(weights, pesel_digits)) % 10
+        return (10 - checksum) % 10
+
+    def generate_pesel(self):
+        year = self.birth_date.year
+        month = self.get_month_code(year, self.birth_date.month)
+        day = self.birth_date.day
+
+        year_str = f"{year % 100:02d}"
+        month_str = f"{month:02d}"
+        day_str = f"{day:02d}"
+
+        birth_part = [int(d) for d in year_str + month_str + day_str]
+
+        # losowe 3 cyfry + 1 cyfra płci
+        serial = [random.randint(0, 9) for _ in range(3)]
+        gender_digit = random.choice([1, 3, 5, 7, 9]) if self.is_male else random.choice([0, 2, 4, 6, 8])
+
+        pesel_digits = birth_part + serial + [gender_digit]
+        pesel_digits.append(self.calculate_checksum(pesel_digits))
+
+        return ''.join(str(d) for d in pesel_digits)
+    
+
+pp = PersonalGenerator()
+pp.get_sex()
+name = ''
+name = pp.get_male_name()  # trzeba przerobić żeby generator to miał już w metodach
+birth_date = pp.get_birth_date()
+pesel = pp.generate_pesel()
+
+first_name = name.split(" ")[0]
+last_name = name.split(" ")[1]
+
+person = Person(first_name, last_name, birth_date, pesel)
+
+print(person.first_name)
+print(person.last_name)
+print(person.birth_date)
+print(person.pesel)
