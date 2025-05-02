@@ -6,7 +6,6 @@ class AdressProvider:
     regions_size = 15
     street_prfx_size = 2
     streets_size = 399
-    cities_index = 0
 
 
     cities = (
@@ -621,35 +620,36 @@ class AdressProvider:
         "Kielecka",
     )
 
-    def random_choice(self, list):
+    def _random_choice(self, list):
         return random.choice(list)
 
-    def getCity(self)->str:
-        city = self.random_choice(self.cities)
-        self.cities_index = self.cities.index(city)
-        return city[0]
+    def get_city_with_postal_code(self)->tuple[str,str]:
+        return self._random_choice(self.cities)
     
-    def getStreet(self):
-        return self.random_choice(self.streets)
+    def get_street(self)->str:
+        return self._random_choice(self.streets)
 
-    def getStreetPrefix(self):
-        return self.random_choice(self.street_prefixes)
-
-    def getPostalCode(self):
-        return self.cities[self.cities_index][1]
+    def get_street_prefix(self)->str:
+        return self._random_choice(self.street_prefixes)
     
-    def getHouseNumber(self):
+    def get_house_number(self)->str:
         return f"{random.randint(1,200)}" if random.randint(0, 1) else f"{random.randint(1,200)}/{random.randint(1,20)}"
         
     
-    def getAdress(self):
-        street_prefix = self.getStreetPrefix()
-        street = self.getStreet()
-        house_number = self.getHouseNumber()
-        city = self.getCity()
-        postal_code = self.getPostalCode()
-
-        return f"{street_prefix} {street} {house_number} {postal_code} {city}"
+    def get_adress(self)->Adress:
+        adress = Adress()
+        adress.street_prefix = self.get_street_prefix()
+        adress.street = self.get_street()
+        adress.house_number = self.get_house_number()
+        city_with_postal_code = self.get_city_with_postal_code()
+        adress.city = city_with_postal_code[0]
+        adress.postal_code = city_with_postal_code[1]
+        return adress
 
 ap = AdressProvider()
-print(ap.getAdress())
+list = []
+for i in range(5):
+    list.append(ap.get_adress())
+
+for i in range(5):
+    print(list[i].to_string())
